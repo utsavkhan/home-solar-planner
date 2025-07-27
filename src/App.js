@@ -15,15 +15,15 @@ const App = () => {
   // State to hold all form data across steps
   const [formData, setFormData] = useState(() => {
     // Initialize with default values
-    const defaultAnnualConsumption = 8000; // kWh/year, a common average for Indian homes
-    const defaultAvgElectricityPrice = 7.50; // INR/kWh, a common average
+    const defaultAnnualConsumption = 5000; // kWh/year, a common average for Indian homes
+    const defaultAvgElectricityPrice = 8; // INR/kWh, a common average
     // Removed roofType default
     const defaultRoofArea = 50; // m^2
     const defaultRoofOrientation = "South";
     // Removed hasShading and shadingPercentage defaults
     const defaultDesiredCoverage = 100; // %
     const defaultElectricityPriceInflation = 6; // % - Changed to 6%
-    const defaultTraditionalSavingsInterest = 6; // % - Changed to 6%
+    const defaultTraditionalSavingsInterest = 6.5; // % - Changed to 6%
     const defaultProjectionYears = 25; // years
 
     return {

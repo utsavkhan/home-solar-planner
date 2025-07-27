@@ -40,7 +40,6 @@ const SolarDesignSection = ({ formData, onPrev, onNext }) => {
   }
 
   const {
-    annualProductionPerKWp,
     recommendedSystemSizeKWp,
     totalCostINR,
     subsidyINR,
@@ -71,7 +70,8 @@ const SolarDesignSection = ({ formData, onPrev, onNext }) => {
             (Equivalent to about {panelsNeeded} solar panels, assuming 570W/panel)
           </p>
           <p className="text-gray-600 text-sm mt-2 font-semibold text-red-700">
-            **Note: If the recommended System capacity goes beyond 5kWp, the system might not be eligible for Net Metering depending on your Discom (Distribution Company e.g. CESC), Net billing calculation are not supported in this tool currently.
+            **Disclaimer: If the recommended System capacity goes beyond 5kWp, you might not be eligible for Net Metering depending on your Discom (Distribution Company e.g. CESC),
+            Net billing calculation are not supported by this tool currently.
           </p>
         </div>
 
