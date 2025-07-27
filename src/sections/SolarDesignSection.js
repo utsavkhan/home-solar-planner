@@ -67,10 +67,10 @@ const SolarDesignSection = ({ formData, onPrev, onNext }) => {
             <span className="font-semibold text-green-700">{annualSolarProductionKWh.toLocaleString('en-IN')} kWh</span> annually.
           </p>
           <p className="text-gray-600 text-sm mt-1">
-            (Equivalent to about {panelsNeeded} solar panels, assuming 570W/panel)
+            (Equivalent to about {panelsNeeded} solar panels, assuming 570Wp/panel)
           </p>
           <p className="text-gray-600 text-sm mt-2 font-semibold text-red-700">
-            **Disclaimer: If the recommended System capacity goes beyond 5kWp, you might not be eligible for Net Metering depending on your Discom (Distribution Company e.g. CESC),
+            Disclaimer: If the recommended System capacity goes beyond 5 kWp, you might NOT be eligible for Net Metering depending on your Discom (Distribution Company e.g. CESC),
             Net billing calculation are not supported by this tool currently.
           </p>
         </div>
@@ -79,11 +79,11 @@ const SolarDesignSection = ({ formData, onPrev, onNext }) => {
           <h3 className="text-xl font-bold text-blue-800 mb-4">Estimated Costing</h3>
           <div className="space-y-2 text-gray-700">
             <p className="flex justify-between items-center text-lg">
-              <span>Total Estimated Installation Cost:</span>
+              <span>Total Estimated Installation Cost*:</span>
               <span className="font-bold text-blue-700">₹ {totalCostINR.toLocaleString('en-IN')}</span>
             </p>
             <p className="flex justify-between items-center text-lg">
-              <span>Cashback: Government Subsidy (PM Surya Ghar):</span>
+              <span>Government Subsidy (PM Surya Ghar)**:</span>
               <span className="font-bold text-red-600">- ₹ {subsidyINR.toLocaleString('en-IN')}</span>
             </p>
             <hr className="border-blue-300 my-3" />
@@ -93,11 +93,15 @@ const SolarDesignSection = ({ formData, onPrev, onNext }) => {
             </p>
           </div>
           <p className="text-gray-600 text-sm mt-4">
-            *Subsidy calculation is based on the PM Surya Ghar: Muft Bijli Yojana guidelines.
-            Actual subsidy may vary based on official verification.
+            * Estimated installation cost assumes usage of state of the art Solar Panels along with best quality Inverters and other essential components.
+            Exact cost to vary slightly depending on the Vendor and Site situation.
+          </p>
+          <p className="text-gray-600 text-sm mt-4">
+            ** Subsidy calculation is based on the PM Surya Ghar: Muft Bijli Yojana guidelines.
+            Actual subsidy may vary based on official verification. Different states might have additional subsidy which is not included in this calculation.
           </p>
           <p className="text-gray-600 text-sm mt-2 font-semibold text-red-700">
-            **Note: This cost excludes one-time Discom (Distribution Company) charges, which are typically between ₹15,000 - ₹20,000 for a solar meter installation.
+            Note: This cost excludes one-time Discom (Distribution Company) charges, which are typically between ₹15,000 - ₹20,000 for a solar meter installation.
           </p>
         </div>
 

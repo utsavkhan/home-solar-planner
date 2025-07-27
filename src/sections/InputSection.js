@@ -166,7 +166,7 @@ const InputSection = ({ formData, onFormChange, onNext }) => {
             placeholder="e.g., 25"
             value={localFormData.projectionYears || 25}
             onChange={(e) => handleNumberChange('projectionYears', e.target.value)}
-            helperText="How many years do you want to project your savings?"
+            helperText="How many years do you want to project your savings? Solar systems are a long term investement and ideally designed to last around 25-30 Years"
             min="5"
             max="30"
             step="1"
