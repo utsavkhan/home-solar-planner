@@ -94,7 +94,7 @@ const InputSection = ({ formData, onFormChange, onNext }) => {
             min="0"
           />
           <Dropdown
-            label="Solar Panel Tilt Direction)"
+            label="Solar Panel Tilt Direction"
             name="roofOrientation"
             options={[
               { label: "South", value: "South" },
@@ -104,7 +104,7 @@ const InputSection = ({ formData, onFormChange, onNext }) => {
             ]}
             value={localFormData.roofOrientation || ''}
             onChange={(value) => handleSelectChange('roofOrientation', value)}
-            helperText="South-facing roofs are generally ideal for maximum generation in India."
+            helperText="South-facing panels are generally ideal for maximum generation in India."
           />
           {/* Removed Roof Tilt Angle input and Shading questions */}
         </div>
@@ -124,7 +124,7 @@ const InputSection = ({ formData, onFormChange, onNext }) => {
             helperText="Do you want to offset all your consumption or just a part?"
           />
           <FormInput
-            label="Optional: Your Maximum Investment Budget"
+            label="Optional: Your Maximum Budget"
             type="number"
             name="investmentBudgetINR"
             unit="₹"

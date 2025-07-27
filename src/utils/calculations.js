@@ -77,8 +77,8 @@ const calculations = {
       }
     }
 
-    // Round up to nearest 0.5 kWp for practical system sizes
-    return Math.ceil(requiredKWp * 2) / 2;
+
+    return requiredKWp;
   },
 
   /**
@@ -143,7 +143,7 @@ const calculations = {
       return 0;
     }
 
-    // Assume a certain percentage of self-consumption (e.g., 70%) and export (30%)
+    /* // Assume a certain percentage of self-consumption (e.g., 70%) and export (30%)
     // This can be made an input or more dynamic later.
     const selfConsumptionRate = 0.70; // % of generated power consumed directly
     const exportRate = 1 - selfConsumptionRate; // % of generated power exported
@@ -164,7 +164,16 @@ const calculations = {
 
     // Total annual savings = (Avoided Bill + Export Income) - Remaining Bill (if any)
     // For simplicity, let's calculate direct savings from avoided purchase + export income
-    const totalAnnualSavings = savingsFromSelfConsumption + incomeFromExport;
+    const totalAnnualSavings = savingsFromSelfConsumption + incomeFromExport; 
+
+    // Simplified Calculation assumed only 90% of electricity bill is offset
+    const totalAnnualSavings = annualConsumptionKWh * 0.9 * avgElectricityPriceINR;*/
+    let totalAnnualSavings;
+
+    if (annualSolarProductionKWh >= annualConsumptionKWh * 0.9)
+      totalAnnualSavings = annualConsumptionKWh * 0.9 * avgElectricityPriceINR;
+    else
+      totalAnnualSavings = annualSolarProductionKWh * avgElectricityPriceINR;
 
     return totalAnnualSavings;
   },
