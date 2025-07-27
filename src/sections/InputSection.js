@@ -124,7 +124,7 @@ const InputSection = ({ formData, onFormChange, onNext }) => {
             helperText="Do you want to offset all your consumption or just a part?"
           />
           <FormInput
-            label="Optional: Your Maximum Budget"
+            label="Optional: Your Maximum Budget (Without considering subsidy)"
             type="number"
             name="investmentBudgetINR"
             unit="₹"
@@ -154,7 +154,7 @@ const InputSection = ({ formData, onFormChange, onNext }) => {
             placeholder={`e.g., 6`}
             value={localFormData.traditionalSavingsInterestRate || 6}
             onChange={(e) => handleNumberChange('traditionalSavingsInterestRate', e.target.value)}
-            helperText={`This nominal rate will remain constant for every 5-year tenure (like an FD).`}
+            helperText={`This rate is used to calculate savings, in case the same amount of investment was made in a traditional investment scheme like FD.`}
             min="0"
             step="0.1"
           />

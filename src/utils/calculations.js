@@ -230,8 +230,7 @@ const calculations = {
         paybackPeriod = year;
       }
 
-      // Traditional Savings Calculations: Interest rate remains same for every 5 year tenure (nominal rate)
-      // No decay based on inflation for traditional savings as per the latest request.
+      // Traditional Savings Calculations: Interest rate remains same 
       const currentYearTraditionalInterestRate = initialTraditionalSavingsInterestRate;
       traditionalSavingsBalance *= (1 + currentYearTraditionalInterestRate);
 
