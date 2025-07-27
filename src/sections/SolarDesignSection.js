@@ -70,6 +70,9 @@ const SolarDesignSection = ({ formData, onPrev, onNext }) => {
           <p className="text-gray-600 text-sm mt-1">
             (Equivalent to about {panelsNeeded} solar panels, assuming 570W/panel)
           </p>
+          <p className="text-gray-600 text-sm mt-2 font-semibold text-red-700">
+            **Note: If the recommended System capacity goes beyond 5kWp, the system might not be eligible for Net Metering depending on your Discom (Distribution Company e.g. CESC), Net billing calculation are not supported in this tool currently.
+          </p>
         </div>
 
         <div className="bg-blue-50 p-6 rounded-lg border border-blue-200 shadow-sm">
@@ -80,7 +83,7 @@ const SolarDesignSection = ({ formData, onPrev, onNext }) => {
               <span className="font-bold text-blue-700">₹ {totalCostINR.toLocaleString('en-IN')}</span>
             </p>
             <p className="flex justify-between items-center text-lg">
-              <span>Less: Government Subsidy (PM Surya Ghar):</span>
+              <span>Cashback: Government Subsidy (PM Surya Ghar):</span>
               <span className="font-bold text-red-600">- ₹ {subsidyINR.toLocaleString('en-IN')}</span>
             </p>
             <hr className="border-blue-300 my-3" />

@@ -15,17 +15,6 @@ const InputSection = ({ formData, onFormChange, onNext }) => {
     setLocalFormData(formData);
   }, [formData]);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    const newValue = type === 'checkbox' ? checked : value;
-
-    setLocalFormData(prev => ({
-      ...prev,
-      [name]: newValue
-    }));
-    // Immediately pass change to parent state
-    onFormChange({ [name]: newValue });
-  };
 
   const handleNumberChange = (name, value) => {
     const parsedValue = parseFloat(value);
@@ -105,16 +94,13 @@ const InputSection = ({ formData, onFormChange, onNext }) => {
             min="0"
           />
           <Dropdown
-            label="Main Roof Orientation (Direction)"
+            label="Solar Panel Tilt Direction)"
             name="roofOrientation"
             options={[
               { label: "South", value: "South" },
-              { label: "South-East", value: "South-East" },
-              { label: "South-West", value: "South-West" },
               { label: "East", value: "East" },
               { label: "West", value: "West" },
-              { label: "North", value: "North" },
-              { label: "Flat Roof (Requires tilt structure)", value: "Flat" },
+              { label: "North", value: "North" }
             ]}
             value={localFormData.roofOrientation || ''}
             onChange={(value) => handleSelectChange('roofOrientation', value)}
