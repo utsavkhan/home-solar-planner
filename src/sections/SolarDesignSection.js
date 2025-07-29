@@ -55,7 +55,7 @@ const SolarDesignSection = ({ formData, onPrev, onNext }) => {
     <Card title="Your Solar Plant Design & Cost">
       <div className="space-y-6">
         <div className="bg-green-50 p-6 rounded-lg border border-green-200 shadow-sm">
-          <h3 className="text-xl font-bold text-green-800 mb-4">Recommended System</h3>
+          <h3 className="text-xl font-bold text-green-800 mb-4">Recommended On-Grid Solar System</h3>
           <p className="text-gray-700 text-lg">
             Based on your inputs, we recommend a system of:
             <span className="block text-4xl font-extrabold text-green-700 mt-2">
@@ -101,7 +101,7 @@ const SolarDesignSection = ({ formData, onPrev, onNext }) => {
             Actual subsidy may vary based on official verification. Different states might have additional subsidy which is not included in this calculation.
           </p>
           <p className="text-gray-600 text-sm mt-2 font-semibold text-red-700">
-            Note: This cost excludes one-time Discom (Distribution Company) charges, which are typically between ₹15,000 - ₹20,000 for a solar meter installation.
+            Note: This cost excludes one-time Discom (Distribution Company) charges, which are typically between ₹15,000 - ₹20,000 for a solar Net meter installation.
           </p>
         </div>
 
