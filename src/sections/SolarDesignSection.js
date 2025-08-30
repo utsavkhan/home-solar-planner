@@ -69,10 +69,6 @@ const SolarDesignSection = ({ formData, onPrev, onNext }) => {
           <p className="text-gray-600 text-sm mt-1">
             (Equivalent to about {panelsNeeded} solar panels, assuming 570Wp/panel)
           </p>
-          <p className="text-gray-600 text-sm mt-2 font-semibold text-red-700">
-            Disclaimer: If the recommended System capacity goes beyond 5 kWp, you might NOT be eligible for Net Metering depending on your Discom (Distribution Company e.g. CESC),
-            Net billing calculation are not supported by this tool currently.
-          </p>
         </div>
 
         <div className="bg-blue-50 p-6 rounded-lg border border-blue-200 shadow-sm">
