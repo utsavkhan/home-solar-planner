@@ -85,12 +85,12 @@ const InputSection = ({ formData, onFormChange, onNext }) => {
           <FormInput
             label="Approximate Usable Roof Area"
             type="number"
-            name="roofAreaM2"
-            unit="m²"
-            placeholder="e.g., 50"
-            value={localFormData.roofAreaM2 || ''}
-            onChange={(e) => handleNumberChange('roofAreaM2', e.target.value)}
-            helperText="Estimate the unshaded area where panels can be installed. Each 570W panel is approx. 2.58 m²."
+            name="roofAreasqft"
+            unit="Square foot"
+            placeholder="e.g., 500"
+            value={localFormData.roofAreasqft || ''}
+            onChange={(e) => handleNumberChange('roofAreasqft', e.target.value)}
+            helperText="Estimate the unshaded area where panels can be installed. Each 570W panel is approx. 28 ft²."
             min="0"
           />
           <Dropdown

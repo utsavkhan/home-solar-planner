@@ -46,7 +46,7 @@ const calculations = {
    * @returns {number} Recommended system size in kWp.
    */
   calculateSystemSize: (inputs, annualProductionPerKWp) => {
-    const { annualConsumptionKWh, desiredCoveragePercent, roofAreaM2, investmentBudgetINR } = inputs;
+    const { annualConsumptionKWh, desiredCoveragePercent, roofAreasqft, investmentBudgetINR } = inputs;
 
     if (!annualConsumptionKWh || annualConsumptionKWh <= 0 || !annualProductionPerKWp || annualProductionPerKWp <= 0) {
       return 0;
@@ -57,7 +57,7 @@ const calculations = {
 
     // Consider roof area constraint (assuming 570W panel takes ~2.58 m² = 4.53 m² per kWp)
     const spacePerKWp = 4.53; // m^2 per kWp for a 570W panel (2278mm x 1133mm)
-    const maxKWpFromRoofArea = roofAreaM2 / spacePerKWp;
+    const maxKWpFromRoofArea = roofAreasqft * 0.092903 / spacePerKWp;
     if (requiredKWp > maxKWpFromRoofArea) {
       requiredKWp = maxKWpFromRoofArea; // Limit by available roof space
     }
