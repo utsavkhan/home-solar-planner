@@ -10,8 +10,8 @@ const calculations = {
   getSolarProductionPerKWp: (inputs) => {
     const { roofOrientation } = inputs;
 
-    // Base production for South-facing, 5 kWh/kWp/day * 365 days
-    const southFacingAnnualProduction = 5 * 365; // 1825 kWh/kWp/year
+    // Base production for South-facing, 4.5 kWh/kWp/day * 365 days
+    const southFacingAnnualProduction = 4.5 * 365; // 1642.5 kWh/kWp/year
 
     let annualProductionKWhPerKWp;
 
