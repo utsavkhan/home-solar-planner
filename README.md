@@ -1,70 +1,35 @@
-# Getting Started with Create React App
+# Home Solar Planner
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React single-page wizard that helps homeowners in **India** and **Sweden** size and price a rooftop on-grid solar system, and compares long-term solar savings against a traditional interest-bearing investment.
 
-## Available Scripts
+## What it does
 
-In the project directory, you can run:
+1. **Country** — pick India or Sweden; this drives currency, units, and every constant used below.
+2. **Home details** — annual electricity consumption, electricity price, usable roof area, roof orientation, desired coverage %, optional budget cap.
+3. **Solar design** — recommended system size (kWp), panel count, total installation cost, and the applicable government incentive.
+4. **Savings comparison** — a year-by-year projection (chart + table) of cumulative solar cash flow vs. the same money left in a comparison investment, plus estimated payback period.
+
+## Country-specific assumptions (reconfirmed for 2026)
+
+| | India | Sweden |
+|---|---|---|
+| Currency / roof unit | ₹ / sqft | kr / m² |
+| Residential electricity price (default) | ~₹7.5/kWh (national avg ~₹7.2, ranges ₹3-12 by state) | ~2.0 kr/kWh (varies by elområde SE1-SE4; south generally pricier) |
+| Solar yield, south-facing | ~1,640 kWh/kWp/yr (4.5 kWh/kWp/day) | ~950 kWh/kWp/yr (range 800-1,100, ~25% lower in the north) |
+| Install cost per kWp | ~₹64,000-78,000 (cheaper per kWp at larger sizes) | ~12,000-18,000 kr (cheaper per kWp at larger sizes) |
+| Incentive | PM Surya Ghar: Muft Bijli Yojana — upfront subsidy, ₹30,000/kW to 2kW, ₹18,000 for the 3rd kW, capped at ₹78,000 for 3kW+ | Grön Teknik — 15% tax deduction on invoice cost (reduced from 20% on 1 Jul 2025), capped at 50,000 kr per person per year |
+| Export/self-consumption model | Net-metering-like; self-consumption capped at 90% of annual consumption | No feed-in tax credit since it was abolished 1 Jan 2026 — exported power only earns roughly spot price (~50% of retail); only a minority of production is typically self-consumed without a battery (default assumption 30%) |
+| Comparison investment | Fixed Deposit, ~7.0% | Savings account (sparkonto), ~2.5% |
+
+These are point-in-time market estimates (installer quotes, subsidy rates, and electricity prices vary by region and change over time) and should be periodically reconfirmed — see `src/utils/data.js` for the exact constants and `src/utils/calculations.js` for how they're applied.
+
+## Getting Started (Create React App)
 
 ### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Runs the app in development mode at [http://localhost:3000](http://localhost:3000).
 
 ### `npm run build`
+Builds the app for production to the `build` folder.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### `npm test`
+Launches the test runner in interactive watch mode.

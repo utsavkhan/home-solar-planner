@@ -1,33 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import Card from '../components/Card'; // Correct path for Card
-import calculations from '../utils/calculations'; // Correct path for calculations (default import)
-import data from '../utils/data'; // <--- THIS IS THE CRUCIAL LINE: Ensure it's '../utils/data'
-
+import Card from '../components/Card';
+import calculations from '../utils/calculations';
+import countryData from '../utils/data';
+import { formatCurrency, formatChartTick } from '../utils/format';
 
 const SavingsComparisonSection = ({ formData, onPrev }) => {
   const [projectionData, setProjectionData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const country = formData.country;
+  const currentCountryData = countryData[country];
+  const locale = currentCountryData.locale;
 
   useEffect(() => {
     setIsLoading(true);
-    // Recalculate everything to get the base values for projection
     const annualProductionPerKWp = calculations.getSolarProductionPerKWp(formData);
     const recommendedSystemSizeKWp = calculations.calculateSystemSize(formData, annualProductionPerKWp);
-    const { netCostINR } = calculations.calculateInstallationCost(recommendedSystemSizeKWp);
+    const { netCost } = calculations.calculateInstallationCost(formData, recommendedSystemSizeKWp);
     const annualSolarProductionKWh = recommendedSystemSizeKWp * annualProductionPerKWp;
-    const initialAnnualSavingsINR = calculations.calculateAnnualSavings(formData, annualSolarProductionKWh);
+    const initialAnnualSavings = calculations.calculateAnnualSavings(formData, annualSolarProductionKWh);
 
-    // Project financials
     const { solarProjection, traditionalSavingsProjection, paybackPeriod } = calculations.projectFinancials(
       formData,
-      netCostINR,
+      netCost,
       annualSolarProductionKWh,
-      initialAnnualSavingsINR,
+      initialAnnualSavings,
       formData.projectionYears || 25
     );
 
-    setProjectionData({ solarProjection, traditionalSavingsProjection, paybackPeriod, netCostINR });
+    setProjectionData({ solarProjection, traditionalSavingsProjection, paybackPeriod, netCost });
     setIsLoading(false);
   }, [formData]);
 
@@ -44,6 +45,8 @@ const SavingsComparisonSection = ({ formData, onPrev }) => {
 
   const { solarProjection, traditionalSavingsProjection, paybackPeriod } = projectionData;
   const projectionYears = formData.projectionYears || 25;
+  const comparisonLabel = currentCountryData.comparisonInvestmentLabel;
+  const comparisonRate = formData.comparisonInvestmentInterestRate ?? currentCountryData.comparisonInvestmentInterestRate;
 
   return (
     <Card title="Solar Savings vs. Traditional Investment">
@@ -65,8 +68,8 @@ const SavingsComparisonSection = ({ formData, onPrev }) => {
           <h3 className="text-xl font-bold text-gray-800 mb-4">Projected Financial Growth</h3>
           <p className="text-gray-700 mb-4">
             Below is a comparison of your cumulative financial position over {projectionYears} years,
-            comparing investing in solar vs. putting your initial net investment into a traditional savings scheme
-            (at {formData.traditionalSavingsInterestRate || data.avgFDInterestRates.general}% annual interest).
+            comparing investing in solar vs. putting your initial net investment into a {comparisonLabel.toLowerCase()}
+            (at {comparisonRate}% annual interest).
           </p>
 
           <div className="h-80 w-full mb-6">
@@ -74,8 +77,8 @@ const SavingsComparisonSection = ({ formData, onPrev }) => {
               <LineChart
                 data={solarProjection.map((s, index) => ({
                   year: s.year,
-                  'Solar Cumulative Savings': s.cumulativeCashFlowINR,
-                  'Traditional Savings Balance': traditionalSavingsProjection[index].balanceINR
+                  'Solar Cumulative Savings': s.cumulativeCashFlow,
+                  [`${comparisonLabel} Balance`]: traditionalSavingsProjection[index].balance
                 }))}
                 margin={{
                   top: 5, right: 30, left: 20, bottom: 5,
@@ -83,11 +86,11 @@ const SavingsComparisonSection = ({ formData, onPrev }) => {
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
                 <XAxis dataKey="year" label={{ value: 'Year', position: 'insideBottom', offset: 0 }} />
-                <YAxis tickFormatter={(value) => `₹${(value / 100000).toFixed(1)}L`} label={{ value: 'Amount (INR)', angle: -90, position: 'insideLeft' }} />
-                <Tooltip formatter={(value) => `₹${value.toLocaleString('en-IN')}`} />
+                <YAxis tickFormatter={(value) => formatChartTick(value, country)} label={{ value: `Amount (${currentCountryData.currency})`, angle: -90, position: 'insideLeft' }} />
+                <Tooltip formatter={(value) => formatCurrency(value, country)} />
                 <Legend />
                 <Line type="monotone" dataKey="Solar Cumulative Savings" stroke="#10B981" activeDot={{ r: 8 }} strokeWidth={2} />
-                <Line type="monotone" dataKey="Traditional Savings Balance" stroke="#6366F1" activeDot={{ r: 8 }} strokeWidth={2} />
+                <Line type="monotone" dataKey={`${comparisonLabel} Balance`} stroke="#6366F1" activeDot={{ r: 8 }} strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -97,8 +100,8 @@ const SavingsComparisonSection = ({ formData, onPrev }) => {
               <thead className="bg-gray-100">
                 <tr>
                   <th className="py-3 px-4 text-left text-gray-700 font-semibold border-b">Year</th>
-                  <th className="py-3 px-4 text-right text-gray-700 font-semibold border-b">Solar Cumulative Savings (₹)</th>
-                  <th className="py-3 px-4 text-right text-gray-700 font-semibold border-b">Traditional Savings Balance (₹)</th>
+                  <th className="py-3 px-4 text-right text-gray-700 font-semibold border-b">Solar Cumulative Savings ({currentCountryData.currencySymbol})</th>
+                  <th className="py-3 px-4 text-right text-gray-700 font-semibold border-b">{comparisonLabel} Balance ({currentCountryData.currencySymbol})</th>
                 </tr>
               </thead>
               <tbody>
@@ -106,10 +109,10 @@ const SavingsComparisonSection = ({ formData, onPrev }) => {
                   <tr key={solarData.year} className={solarData.year % 5 === 0 ? 'bg-gray-50' : ''}>
                     <td className="py-2 px-4 border-b border-gray-200">{solarData.year}</td>
                     <td className="py-2 px-4 text-right border-b border-gray-200 font-medium">
-                      {solarData.cumulativeCashFlowINR.toLocaleString('en-IN')}
+                      {solarData.cumulativeCashFlow.toLocaleString(locale)}
                     </td>
                     <td className="py-2 px-4 text-right border-b border-gray-200 font-medium">
-                      {traditionalSavingsProjection[index].balanceINR.toLocaleString('en-IN')}
+                      {traditionalSavingsProjection[index].balance.toLocaleString(locale)}
                     </td>
                   </tr>
                 ))}
@@ -118,7 +121,7 @@ const SavingsComparisonSection = ({ formData, onPrev }) => {
           </div>
           <p className="text-gray-600 text-xs italic mt-4">
             *Solar cumulative savings start from your net investment (negative) and increase as you save on bills and earn from export.
-            Traditional savings start with your net investment amount and grow with interest.
+            {comparisonLabel} balance starts with your net investment amount and grows with interest.
           </p>
         </div>
 
@@ -130,7 +133,6 @@ const SavingsComparisonSection = ({ formData, onPrev }) => {
           >
             ← Back to Design
           </button>
-          {/* Optionally, add a "Start Over" or "Download Report" button */}
         </div>
       </div>
     </Card>

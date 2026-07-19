@@ -1,32 +1,37 @@
-import React, { useState, useEffect, useCallback } from 'react'; // Keep this line
-import Card from '../components/Card'; // Add this line
-import calculations from '../utils/calculations'; // <--- REMOVE THE CURLY BRACES
+import React, { useState, useEffect } from 'react';
+import Card from '../components/Card';
+import calculations from '../utils/calculations';
+import { formatCurrency } from '../utils/format';
+import countryData from '../utils/data';
 
 const SolarDesignSection = ({ formData, onPrev, onNext }) => {
-  // Derived state based on formData
   const [results, setResults] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const country = formData.country;
+  const isIndia = country === 'India';
+  const panelWattage = countryData[country].panelWattage;
 
   useEffect(() => {
     setIsLoading(true);
-    // Perform calculations
     const annualProductionPerKWp = calculations.getSolarProductionPerKWp(formData);
     const recommendedSystemSizeKWp = calculations.calculateSystemSize(formData, annualProductionPerKWp);
-    const { totalCostINR, subsidyINR, netCostINR } = calculations.calculateInstallationCost(recommendedSystemSizeKWp);
+    const { totalCost, subsidyOrDeductionAmount, netCost, subsidyOrDeductionLabel } =
+      calculations.calculateInstallationCost(formData, recommendedSystemSizeKWp);
     const annualSolarProductionKWh = recommendedSystemSizeKWp * annualProductionPerKWp;
-    const initialAnnualSavingsINR = calculations.calculateAnnualSavings(formData, annualSolarProductionKWh);
+    const initialAnnualSavings = calculations.calculateAnnualSavings(formData, annualSolarProductionKWh);
 
     setResults({
       annualProductionPerKWp,
       recommendedSystemSizeKWp,
-      totalCostINR,
-      subsidyINR,
-      netCostINR,
+      totalCost,
+      subsidyOrDeductionAmount,
+      netCost,
+      subsidyOrDeductionLabel,
       annualSolarProductionKWh,
-      initialAnnualSavingsINR
+      initialAnnualSavings
     });
     setIsLoading(false);
-  }, [formData]); // Recalculate if form data changes
+  }, [formData]);
 
   if (isLoading || !results) {
     return (
@@ -41,15 +46,15 @@ const SolarDesignSection = ({ formData, onPrev, onNext }) => {
 
   const {
     recommendedSystemSizeKWp,
-    totalCostINR,
-    subsidyINR,
-    netCostINR,
+    totalCost,
+    subsidyOrDeductionAmount,
+    netCost,
+    subsidyOrDeductionLabel,
     annualSolarProductionKWh,
-    initialAnnualSavingsINR
+    initialAnnualSavings
   } = results;
 
-  // Updated to use 570W panel for estimation
-  const panelsNeeded = Math.ceil(recommendedSystemSizeKWp * 1000 / 570); // Assuming 570W panels for estimation
+  const panelsNeeded = Math.ceil(recommendedSystemSizeKWp * 1000 / panelWattage);
 
   return (
     <Card title="Your Solar Plant Design & Cost">
@@ -64,10 +69,10 @@ const SolarDesignSection = ({ formData, onPrev, onNext }) => {
           </p>
           <p className="text-gray-600 mt-2">
             This system is estimated to generate approximately{" "}
-            <span className="font-semibold text-green-700">{annualSolarProductionKWh.toLocaleString('en-IN')} kWh</span> annually.
+            <span className="font-semibold text-green-700">{annualSolarProductionKWh.toLocaleString(countryData[country].locale)} kWh</span> annually.
           </p>
           <p className="text-gray-600 text-sm mt-1">
-            (Equivalent to about {panelsNeeded} solar panels, assuming 570Wp/panel)
+            (Equivalent to about {panelsNeeded} solar panels, assuming {panelWattage}Wp/panel)
           </p>
         </div>
 
@@ -76,29 +81,45 @@ const SolarDesignSection = ({ formData, onPrev, onNext }) => {
           <div className="space-y-2 text-gray-700">
             <p className="flex justify-between items-center text-lg">
               <span>Total Estimated Installation Cost*:</span>
-              <span className="font-bold text-blue-700">₹ {totalCostINR.toLocaleString('en-IN')}</span>
+              <span className="font-bold text-blue-700">{formatCurrency(totalCost, country)}</span>
             </p>
             <p className="flex justify-between items-center text-lg">
-              <span>Government Subsidy (PM Surya Ghar)**:</span>
-              <span className="font-bold text-red-600">- ₹ {subsidyINR.toLocaleString('en-IN')}</span>
+              <span>{subsidyOrDeductionLabel}**:</span>
+              <span className="font-bold text-red-600">- {formatCurrency(subsidyOrDeductionAmount, country)}</span>
             </p>
             <hr className="border-blue-300 my-3" />
             <p className="flex justify-between items-center text-xl font-extrabold">
               <span>Your Net Investment:</span>
-              <span className="text-green-800">₹ {netCostINR.toLocaleString('en-IN')}</span>
+              <span className="text-green-800">{formatCurrency(netCost, country)}</span>
             </p>
           </div>
           <p className="text-gray-600 text-sm mt-4">
             * Estimated installation cost assumes usage of state of the art Solar Panels along with best quality Inverters and other essential components.
             Exact cost to vary slightly depending on the Vendor and Site situation.
           </p>
-          <p className="text-gray-600 text-sm mt-4">
-            ** Subsidy calculation is based on the PM Surya Ghar: Muft Bijli Yojana guidelines.
-            Actual subsidy may vary based on official verification. Different states might have additional subsidy which is not included in this calculation.
-          </p>
-          <p className="text-gray-600 text-sm mt-2 font-semibold text-red-700">
-            Note: This cost excludes one-time Discom (Distribution Company) charges, which are typically between ₹15,000 - ₹20,000 for a solar Net meter installation.
-          </p>
+          {isIndia ? (
+            <>
+              <p className="text-gray-600 text-sm mt-4">
+                ** Subsidy calculation is based on the PM Surya Ghar: Muft Bijli Yojana guidelines.
+                Actual subsidy may vary based on official verification. Different states might have additional subsidy which is not included in this calculation.
+              </p>
+              <p className="text-gray-600 text-sm mt-2 font-semibold text-red-700">
+                Note: This cost excludes one-time Discom (Distribution Company) charges, which are typically between{" "}
+                {formatCurrency(countryData.India.netMeterChargeRange.min, country)} -{" "}
+                {formatCurrency(countryData.India.netMeterChargeRange.max, country)} for a solar Net meter installation.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-gray-600 text-sm mt-4">
+                ** The Grön Teknik deduction is a tax credit claimed via Skatteverket (typically applied directly on the installer's invoice), not an instant rebate,
+                and is capped per person per year. Actual eligibility depends on your tax situation.
+              </p>
+              <p className="text-gray-600 text-sm mt-2 font-semibold text-red-700">
+                Note: This cost excludes one-time nätanslutning (grid connection) fees charged by your local nätägare, which vary by region.
+              </p>
+            </>
+          )}
         </div>
 
         <div className="bg-purple-50 p-6 rounded-lg border border-purple-200 shadow-sm">
@@ -106,11 +127,11 @@ const SolarDesignSection = ({ formData, onPrev, onNext }) => {
           <p className="text-gray-700 text-lg">
             In the first year, your estimated electricity bill savings and export income could be up to:
             <span className="block text-4xl font-extrabold text-purple-700 mt-2">
-              ₹ {initialAnnualSavingsINR.toLocaleString('en-IN')}
+              {formatCurrency(initialAnnualSavings, country)}
             </span>
           </p>
           <p className="text-gray-600 text-sm mt-2">
-            This is based on your average electricity price of ₹{formData.avgElectricityPriceINR.toFixed(2)}/kWh.
+            This is based on your average electricity price of {formatCurrency(formData.avgElectricityPrice, country)}/kWh.
           </p>
         </div>
       </div>
