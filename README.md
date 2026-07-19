@@ -14,12 +14,13 @@ A React single-page wizard that helps homeowners in **India** and **Sweden** siz
 | | India | Sweden |
 |---|---|---|
 | Currency / roof unit | ₹ / sqft | kr / m² |
-| Residential electricity price (default) | ~₹7.5/kWh (national avg ~₹7.2, ranges ₹3-12 by state) | ~2.0 kr/kWh (varies by elområde SE1-SE4; south generally pricier) |
+| Typical residential panel | 570W, ~2.58 m² (500-600W+ high-format modules are standard) | 440W, ~1.95 m² (400-460W modules are standard, noticeably lower-wattage than India's) |
+| Residential electricity price (default) | ~₹7.5/kWh (national avg ~₹7.2, ranges ₹3-12 by state) | ~2.3 kr/kWh (SCB national retail avg incl. grid fees/tax; varies sharply by elområde SE1-SE4) |
 | Solar yield, south-facing | ~1,640 kWh/kWp/yr (4.5 kWh/kWp/day) | ~950 kWh/kWp/yr (range 800-1,100, ~25% lower in the north) |
 | Install cost per kWp | ~₹64,000-78,000 (cheaper per kWp at larger sizes) | ~12,000-18,000 kr (cheaper per kWp at larger sizes) |
 | Incentive | PM Surya Ghar: Muft Bijli Yojana — upfront subsidy, ₹30,000/kW to 2kW, ₹18,000 for the 3rd kW, capped at ₹78,000 for 3kW+ | Grön Teknik — 15% tax deduction on invoice cost (reduced from 20% on 1 Jul 2025), capped at 50,000 kr per person per year |
-| Export/self-consumption model | Net-metering-like; self-consumption capped at 90% of annual consumption | No feed-in tax credit since it was abolished 1 Jan 2026 — exported power only earns roughly spot price (~50% of retail); only a minority of production is typically self-consumed without a battery (default assumption 30%) |
-| Comparison investment | Fixed Deposit, ~7.0% | Savings account (sparkonto), ~2.5% |
+| Export/self-consumption model | Net-metering-like; self-consumption capped at 90% of annual consumption | No feed-in tax credit since it was abolished 1 Jan 2026 — exported power only earns roughly spot price (~15% of retail, reflecting Nordpool spot ~0.325 kr/kWh vs ~2.3 kr/kWh retail); only a minority of production is typically self-consumed without a battery (default assumption 30%) |
+| Comparison investment | Fixed Deposit, ~6.5% (major bank rates, e.g. SBI/HDFC/ICICI) | Savings account (sparkonto), ~2.5% |
 
 These are point-in-time market estimates (installer quotes, subsidy rates, and electricity prices vary by region and change over time) and should be periodically reconfirmed — see `src/utils/data.js` for the exact constants and `src/utils/calculations.js` for how they're applied.
 
