@@ -1,52 +1,44 @@
 // --- src/utils/calculations.js ---
-import data from './data'; // <--- CHANGED: Import the default export as 'data'
+import data from './data';
+
+const getCostPerKWpForSize = (countryData, kWp) => {
+  const tiers = countryData.costPerKWpTiers;
+  if (kWp <= 1) return tiers["1kW"];
+  if (kWp <= 2) return tiers["2kW"];
+  if (kWp <= 3) return tiers["3kW"];
+  if (kWp <= 4) return tiers["4kW"];
+  if (kWp <= 5) return tiers["5kW"];
+  return tiers["Above 5kW (average)"];
+};
 
 const calculations = {
   /**
-   * Estimates annual solar production in kWh based on user inputs.
-   * @param {object} inputs - User form data.
+   * Estimates annual solar production in kWh based on user inputs and country.
+   * @param {object} inputs - User form data (country, roofOrientation).
    * @returns {number} Estimated annual production in kWh/kWp.
    */
   getSolarProductionPerKWp: (inputs) => {
-    const { roofOrientation } = inputs;
+    const { country = 'India', roofOrientation } = inputs;
+    const countryData = data[country];
+    const baseAnnualProduction = countryData.solarYieldPerKWpYear;
+    const derate = data.orientationDerates[roofOrientation];
 
-    // Base production for South-facing, 4.5 kWh/kWp/day * 365 days
-    const southFacingAnnualProduction = 4.5 * 365; // 1642.5 kWh/kWp/year
-
-    let annualProductionKWhPerKWp;
-
-    if (roofOrientation === "South") {
-      annualProductionKWhPerKWp = southFacingAnnualProduction;
-    } else if (roofOrientation === "East" || roofOrientation === "West") {
-      // 25% reduction from South
-      annualProductionKWhPerKWp = southFacingAnnualProduction * (1 - 0.25);
-    } else if (roofOrientation === "North") {
-      // 40% reduction from South
-      annualProductionKWhPerKWp = southFacingAnnualProduction * (1 - 0.40);
-    } else if (roofOrientation === "South-East" || roofOrientation === "South-West") {
-      // Keeping previous 5% reduction from South
-      annualProductionKWhPerKWp = southFacingAnnualProduction * 0.95;
-    } else if (roofOrientation === "Flat") {
-      // Keeping previous 10% reduction from South for flat with tilt structure
-      annualProductionKWhPerKWp = southFacingAnnualProduction * 0.90;
-    } else {
-      // Fallback to general average if somehow an unhandled orientation is selected
-      annualProductionKWhPerKWp = data.generalSolarIrradianceIndia; // <--- CHANGED: Access via data.
+    if (derate) {
+      return baseAnnualProduction * derate;
     }
-
-    // Shading and tilt angle are no longer inputs and are assumed to be optimized
-    // or their effects are implicitly covered by these general reduction factors.
-    return annualProductionKWhPerKWp;
+    // Fallback for an unhandled orientation
+    return countryData.generalSolarIrradianceIndia || baseAnnualProduction;
   },
 
   /**
-   * Calculates the recommended system size in kWp.
+   * Calculates the recommended system size in kWp, constrained by roof area and budget.
    * @param {object} inputs - User form data.
    * @param {number} annualProductionPerKWp - Annual kWh production per kWp.
    * @returns {number} Recommended system size in kWp.
    */
   calculateSystemSize: (inputs, annualProductionPerKWp) => {
-    const { annualConsumptionKWh, desiredCoveragePercent, roofAreasqft, investmentBudgetINR } = inputs;
+    const { country = 'India', annualConsumptionKWh, desiredCoveragePercent, roofArea, investmentBudget } = inputs;
+    const countryData = data[country];
 
     if (!annualConsumptionKWh || annualConsumptionKWh <= 0 || !annualProductionPerKWp || annualProductionPerKWp <= 0) {
       return 0;
@@ -55,173 +47,152 @@ const calculations = {
     const targetConsumptionKWh = annualConsumptionKWh * (desiredCoveragePercent / 100);
     let requiredKWp = targetConsumptionKWh / annualProductionPerKWp;
 
-    // Consider roof area constraint (assuming 570W panel takes ~2.58 m² = 4.53 m² per kWp)
-    const spacePerKWp = 4.53; // m^2 per kWp for a 570W panel (2278mm x 1133mm)
-    const maxKWpFromRoofArea = roofAreasqft * 0.092903 / spacePerKWp;
+    // Consider roof area constraint (India roof area is entered in sqft, Sweden in m^2)
+    const roofAreaM2 = countryData.roofAreaUnit === 'sqft' ? (roofArea || 0) * data.m2PerSqft : (roofArea || 0);
+    const maxKWpFromRoofArea = roofAreaM2 / countryData.spacePerKWpM2;
     if (requiredKWp > maxKWpFromRoofArea) {
-      requiredKWp = maxKWpFromRoofArea; // Limit by available roof space
+      requiredKWp = maxKWpFromRoofArea;
     }
 
     // Consider budget constraint
-    if (investmentBudgetINR && investmentBudgetINR > 0) {
-      let estimatedCostPerKWp = data.solarCostPerKWp["Above 5kW (average)"]; // <--- CHANGED: Access via data.
-      if (requiredKWp <= 1) estimatedCostPerKWp = data.solarCostPerKWp["1kW"]; // <--- CHANGED: Access via data.
-      else if (requiredKWp <= 2) estimatedCostPerKWp = data.solarCostPerKWp["2kW"]; // <--- CHANGED: Access via data.
-      else if (requiredKWp <= 3) estimatedCostPerKWp = data.solarCostPerKWp["3kW"]; // <--- CHANGED: Access via data.
-      else if (requiredKWp <= 4) estimatedCostPerKWp = data.solarCostPerKWp["4kW"]; // <--- CHANGED: Access via data.
-      else if (requiredKWp <= 5) estimatedCostPerKWp = data.solarCostPerKWp["5kW"]; // <--- CHANGED: Access via data.
-
-      const maxKWpFromBudget = investmentBudgetINR / estimatedCostPerKWp;
+    if (investmentBudget && investmentBudget > 0) {
+      const estimatedCostPerKWp = getCostPerKWpForSize(countryData, requiredKWp <= 0 ? 1 : requiredKWp);
+      const maxKWpFromBudget = investmentBudget / estimatedCostPerKWp;
       if (requiredKWp > maxKWpFromBudget) {
-        requiredKWp = maxKWpFromBudget; // Limit by budget
+        requiredKWp = maxKWpFromBudget;
       }
     }
 
-
-    return requiredKWp;
+    return Math.max(0, requiredKWp);
   },
 
   /**
-   * Calculates the total installation cost and applicable subsidy.
+   * Calculates total installation cost and the applicable subsidy/tax deduction.
+   * India: PM Surya Ghar upfront subsidy. Sweden: Grön Teknik tax deduction (capped per applicant).
+   * @param {object} inputs - User form data (country, numApplicants for Sweden).
    * @param {number} systemSizeKWp - Recommended system size in kWp.
-   * @returns {object} { totalCostINR, subsidyINR, netCostINR }
+   * @returns {object} { totalCost, subsidyOrDeductionAmount, netCost, subsidyOrDeductionLabel }
    */
-  calculateInstallationCost: (systemSizeKWp) => {
-    let totalCostINR = 0;
-    let subsidyINR = 0;
+  calculateInstallationCost: (inputs, systemSizeKWp) => {
+    const { country = 'India', numApplicants = 1 } = inputs;
+    const countryData = data[country];
 
     if (systemSizeKWp <= 0) {
-      return { totalCostINR: 0, subsidyINR: 0, netCostINR: 0 };
+      return { totalCost: 0, subsidyOrDeductionAmount: 0, netCost: 0, subsidyOrDeductionLabel: '' };
     }
 
-    // Determine cost per kWp based on system size and scale accordingly
-    let costPerKWpForSize;
-    if (systemSizeKWp <= 1) {
-      costPerKWpForSize = data.solarCostPerKWp["1kW"]; // <--- CHANGED: Access via data.
-    } else if (systemSizeKWp <= 2) {
-      costPerKWpForSize = data.solarCostPerKWp["2kW"]; // <--- CHANGED: Access via data.
-    } else if (systemSizeKWp <= 3.3) { // Use 3.3kW specific cost
-      costPerKWpForSize = data.solarCostPerKWp["3kW"]; // <--- CHANGED: Access via data.
-    } else if (systemSizeKWp <= 4.6) { // Use 4.6kW specific cost
-      costPerKWpForSize = data.solarCostPerKWp["4kW"]; // <--- CHANGED: Access via data.
-    } else if (systemSizeKWp <= 5) {
-      costPerKWpForSize = data.solarCostPerKWp["5kW"]; // <--- CHANGED: Access via data.
-    } else {
-      costPerKWpForSize = data.solarCostPerKWp["Above 5kW (average)"]; // <--- CHANGED: Access via data.
-    }
-    totalCostINR = costPerKWpForSize * systemSizeKWp;
+    const costPerKWpForSize = getCostPerKWpForSize(countryData, systemSizeKWp);
+    const totalCost = costPerKWpForSize * systemSizeKWp;
 
+    let subsidyOrDeductionAmount = 0;
+    let subsidyOrDeductionLabel = '';
 
-    // Calculate subsidy based on PM Surya Ghar scheme
-    if (systemSizeKWp > 0) {
+    if (country === 'India') {
+      subsidyOrDeductionLabel = 'Government Subsidy (PM Surya Ghar)';
+      const { upTo2kWPerKW, additionalKWBetween2And3, fixedFor3kWAndAbove } = countryData.solarSubsidy;
       if (systemSizeKWp <= 2) {
-        subsidyINR = systemSizeKWp * data.solarSubsidyIndia.upTo2kWPerKW; // <--- CHANGED: Access via data.
-      } else if (systemSizeKWp > 2 && systemSizeKWp <= 3) {
-        // For capacity between 2kW and 3kW
-        subsidyINR = (2 * data.solarSubsidyIndia.upTo2kWPerKW) + ((systemSizeKWp - 2) * data.solarSubsidyIndia.additionalKWBetween2And3); // <--- CHANGED: Access via data.
-        // Ensure it does not exceed the 3kW cap
-        subsidyINR = Math.min(subsidyINR, data.solarSubsidyIndia.fixedFor3kWAndAbove); // <--- CHANGED: Access via data.
+        subsidyOrDeductionAmount = systemSizeKWp * upTo2kWPerKW;
+      } else if (systemSizeKWp <= 3) {
+        subsidyOrDeductionAmount = Math.min(
+          (2 * upTo2kWPerKW) + ((systemSizeKWp - 2) * additionalKWBetween2And3),
+          fixedFor3kWAndAbove
+        );
       } else {
-        // For systems 3kW and above, fixed subsidy
-        subsidyINR = data.solarSubsidyIndia.fixedFor3kWAndAbove; // <--- CHANGED: Access via data.
+        subsidyOrDeductionAmount = fixedFor3kWAndAbove;
       }
+    } else {
+      subsidyOrDeductionLabel = 'Grön Teknik Tax Deduction';
+      const { rate, capPerPerson } = countryData.greenTechDeduction;
+      subsidyOrDeductionAmount = Math.min(totalCost * rate, capPerPerson * numApplicants);
     }
 
-    const netCostINR = totalCostINR - subsidyINR;
-    return { totalCostINR: Math.round(totalCostINR), subsidyINR: Math.round(subsidyINR), netCostINR: Math.round(netCostINR) };
+    const netCost = totalCost - subsidyOrDeductionAmount;
+    return {
+      totalCost: Math.round(totalCost),
+      subsidyOrDeductionAmount: Math.round(subsidyOrDeductionAmount),
+      netCost: Math.round(netCost),
+      subsidyOrDeductionLabel
+    };
   },
 
   /**
    * Calculates annual savings from solar.
+   * India: self-consumption capped at 90% of annual consumption (net-metering-like).
+   * Sweden: splits production into self-consumed (full retail price) and exported
+   * (spot-price-only, since the feed-in tax credit was abolished 1 Jan 2026).
    * @param {object} inputs - User form data.
    * @param {number} annualSolarProductionKWh - Total annual kWh produced by the system.
-   * @returns {number} Estimated annual savings in INR.
+   * @returns {number} Estimated annual savings in local currency.
    */
   calculateAnnualSavings: (inputs, annualSolarProductionKWh) => {
-    const { annualConsumptionKWh, avgElectricityPriceINR } = inputs;
-    if (!annualConsumptionKWh || !avgElectricityPriceINR || !annualSolarProductionKWh) {
+    const { country = 'India', annualConsumptionKWh, avgElectricityPrice, selfConsumptionRate } = inputs;
+    if (!annualConsumptionKWh || !avgElectricityPrice || !annualSolarProductionKWh) {
       return 0;
     }
+    const countryData = data[country];
 
-    /* // Assume a certain percentage of self-consumption (e.g., 70%) and export (30%)
-    // This can be made an input or more dynamic later.
-    const selfConsumptionRate = 0.70; // % of generated power consumed directly
-    const exportRate = 1 - selfConsumptionRate; // % of generated power exported
+    if (country === 'India') {
+      const cap = countryData.selfConsumptionCapRate;
+      if (annualSolarProductionKWh >= annualConsumptionKWh * cap) {
+        return annualConsumptionKWh * cap * avgElectricityPrice;
+      }
+      return annualSolarProductionKWh * avgElectricityPrice;
+    }
 
-    const selfConsumedKWh = Math.min(annualSolarProductionKWh * selfConsumptionRate, annualConsumptionKWh);
-    const exportedKWh = annualSolarProductionKWh - selfConsumedKWh; // Actual exported after self-consumption
+    // Sweden
+    const consumptionRate = selfConsumptionRate || countryData.defaultSelfConsumptionRate;
+    const selfConsumedKWh = Math.min(annualSolarProductionKWh * consumptionRate, annualConsumptionKWh);
+    const exportedKWh = Math.max(0, annualSolarProductionKWh - selfConsumedKWh);
 
-    // Savings from self-consumption (avoided bill)
-    const savingsFromSelfConsumption = selfConsumedKWh * avgElectricityPriceINR;
+    const savingsFromSelfConsumption = selfConsumedKWh * avgElectricityPrice;
+    const exportPrice = avgElectricityPrice * countryData.exportPriceRatioOfRetail;
+    const incomeFromExport = exportedKWh * exportPrice;
 
-    // Income from exported electricity (assuming a lower feed-in tariff, e.g., 50% of purchase price)
-    const feedInTariffINR = avgElectricityPriceINR * 0.5; // Example: 50% of average price
-    const incomeFromExport = exportedKWh * feedInTariffINR;
-
-    // Remaining electricity needed from grid
-    const remainingConsumptionKWh = Math.max(0, annualConsumptionKWh - selfConsumedKWh);
-    const remainingBill = remainingConsumptionKWh * avgElectricityPriceINR;
-
-    // Total annual savings = (Avoided Bill + Export Income) - Remaining Bill (if any)
-    // For simplicity, let's calculate direct savings from avoided purchase + export income
-    const totalAnnualSavings = savingsFromSelfConsumption + incomeFromExport; 
-
-    // Simplified Calculation assumed only 90% of electricity bill is offset
-    const totalAnnualSavings = annualConsumptionKWh * 0.9 * avgElectricityPriceINR;*/
-    let totalAnnualSavings;
-
-    if (annualSolarProductionKWh >= annualConsumptionKWh * 0.9)
-      totalAnnualSavings = annualConsumptionKWh * 0.9 * avgElectricityPriceINR;
-    else
-      totalAnnualSavings = annualSolarProductionKWh * avgElectricityPriceINR;
-
-    return totalAnnualSavings;
+    return savingsFromSelfConsumption + incomeFromExport;
   },
 
   /**
    * Projects financial outcomes over a period of years.
    * @param {object} inputs - User form data.
-   * @param {number} netCostINR - Initial net cost of the solar system.
+   * @param {number} netCost - Initial net cost of the solar system.
    * @param {number} initialAnnualSolarProductionKWh - Solar production in year 1.
-   * @param {number} initialAnnualSavingsINR - Annual savings in year 1.
+   * @param {number} initialAnnualSavings - Annual savings in year 1.
    * @param {number} projectionYears - Number of years to project.
    * @returns {object} { solarProjection, traditionalSavingsProjection, paybackPeriod }
    */
-  projectFinancials: (inputs, netCostINR, initialAnnualSolarProductionKWh, initialAnnualSavingsINR, projectionYears = 25) => {
-    const { avgElectricityPriceINR } = inputs;
-    const solarDegradationRate = 0.005; // 0.5% per year
-    const electricityPriceInflationRate = (inputs.electricityPriceInflationRate || 6) / 100; // Default 6% per year
-    const initialTraditionalSavingsInterestRate = (inputs.traditionalSavingsInterestRate || data.avgFDInterestRates.general) / 100; // <--- CHANGED: Access via data.
+  projectFinancials: (inputs, netCost, initialAnnualSolarProductionKWh, initialAnnualSavings, projectionYears = 25) => {
+    const { country = 'India', avgElectricityPrice } = inputs;
+    const countryData = data[country];
+    const solarDegradationRate = data.solarDegradationRatePerYear;
+    const electricityPriceInflationRate = (inputs.electricityPriceInflationRate ?? countryData.electricityPriceInflationRate) / 100;
+    const comparisonInterestRate = (inputs.comparisonInvestmentInterestRate ?? countryData.comparisonInvestmentInterestRate) / 100;
 
     const solarProjection = [];
     const traditionalSavingsProjection = [];
 
-    // Add Year 0 data
     solarProjection.push({
       year: 0,
       annualProductionKWh: 0,
-      annualSavingsINR: 0,
-      cumulativeCashFlowINR: -netCostINR
+      annualSavings: 0,
+      cumulativeCashFlow: -netCost
     });
     traditionalSavingsProjection.push({
       year: 0,
-      balanceINR: netCostINR
+      balance: netCost
     });
 
-    let cumulativeSolarCashFlow = -netCostINR;
-    let traditionalSavingsBalance = netCostINR; // Initial investment into savings
+    let cumulativeSolarCashFlow = -netCost;
+    let traditionalSavingsBalance = netCost;
 
     let paybackPeriod = null;
 
     for (let year = 1; year <= projectionYears; year++) {
-      // Solar Calculations
       const currentYearProductionKWh = initialAnnualSolarProductionKWh * Math.pow((1 - solarDegradationRate), (year - 1));
-      const currentYearAvgElectricityPrice = avgElectricityPriceINR * Math.pow((1 + electricityPriceInflationRate), (year - 1));
+      const currentYearAvgElectricityPrice = avgElectricityPrice * Math.pow((1 + electricityPriceInflationRate), (year - 1));
 
-      // Recalculate annual savings for the current year with degraded production and inflated price
       const currentYearSavings = calculations.calculateAnnualSavings({
         ...inputs,
-        avgElectricityPriceINR: currentYearAvgElectricityPrice // Use inflated price
+        avgElectricityPrice: currentYearAvgElectricityPrice
       }, currentYearProductionKWh);
 
       cumulativeSolarCashFlow += currentYearSavings;
@@ -230,21 +201,18 @@ const calculations = {
         paybackPeriod = year;
       }
 
-      // Traditional Savings Calculations: Interest rate remains same 
-      const currentYearTraditionalInterestRate = initialTraditionalSavingsInterestRate;
-      traditionalSavingsBalance *= (1 + currentYearTraditionalInterestRate);
-
+      traditionalSavingsBalance *= (1 + comparisonInterestRate);
 
       solarProjection.push({
         year: year,
         annualProductionKWh: Math.round(currentYearProductionKWh),
-        annualSavingsINR: Math.round(currentYearSavings),
-        cumulativeCashFlowINR: Math.round(cumulativeSolarCashFlow)
+        annualSavings: Math.round(currentYearSavings),
+        cumulativeCashFlow: Math.round(cumulativeSolarCashFlow)
       });
 
       traditionalSavingsProjection.push({
         year: year,
-        balanceINR: Math.round(traditionalSavingsBalance)
+        balance: Math.round(traditionalSavingsBalance)
       });
     }
 

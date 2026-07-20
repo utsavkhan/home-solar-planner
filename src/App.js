@@ -1,83 +1,79 @@
 import React, { useState } from 'react';
 import Header from './components/Header';
+import CountrySelector from './components/CountrySelector';
 import InputSection from './sections/InputSection';
 import SolarDesignSection from './sections/SolarDesignSection';
 import SavingsComparisonSection from './sections/SavingsComparisonSection';
 import Footer from './components/Footer';
-import { calculations } from './utils/calculations';
-// ... any other imports you might have for calculations or data
-import { calculateSolarDesign, calculateSavingsComparison } from './utils/calculations';
-import { defaultSystemConfig, defaultUtilityRates, defaultLocationData } from './utils/data';
+import data from './utils/data';
 
-
+const buildDefaultFormData = (country) => {
+  const countryData = data[country];
+  return {
+    country,
+    annualConsumptionKWh: 5000,
+    avgElectricityPrice: countryData.avgElectricityPrice,
+    roofArea: '',
+    roofOrientation: "South",
+    desiredCoveragePercent: 100,
+    investmentBudget: '', // Optional, leave empty
+    electricityPriceInflationRate: countryData.electricityPriceInflationRate,
+    comparisonInvestmentInterestRate: countryData.comparisonInvestmentInterestRate,
+    projectionYears: 25,
+    numApplicants: 1,
+  };
+};
 
 const App = () => {
-  // State to hold all form data across steps
-  const [formData, setFormData] = useState(() => {
-    // Initialize with default values
-    const defaultAnnualConsumption = 5000; // kWh/year, a common average for Indian homes
-    const defaultAvgElectricityPrice = 8; // INR/kWh, a common average
-    // Removed roofType default
-    const defaultRoofArea = 50; // m^2
-    const defaultRoofOrientation = "South";
-    // Removed hasShading and shadingPercentage defaults
-    const defaultDesiredCoverage = 100; // %
-    const defaultElectricityPriceInflation = 6; // % - Changed to 6%
-    const defaultTraditionalSavingsInterest = 6.5; // % - Changed to 6%
-    const defaultProjectionYears = 25; // years
-
-    return {
-      annualConsumptionKWh: defaultAnnualConsumption,
-      avgElectricityPriceINR: defaultAvgElectricityPrice,
-      // roofType is removed
-      roofAreaM2: defaultRoofArea,
-      roofOrientation: defaultRoofOrientation,
-      // roofTiltDegrees is removed, so no default needed here
-      // hasShading and shadingPercentage are removed
-      desiredCoveragePercent: defaultDesiredCoverage,
-      investmentBudgetINR: '', // Optional, leave empty
-      electricityPriceInflationRate: defaultElectricityPriceInflation,
-      traditionalSavingsInterestRate: defaultTraditionalSavingsInterest,
-      projectionYears: defaultProjectionYears,
-    };
-  });
+  const [country, setCountry] = useState('');
+  const [formData, setFormData] = useState(null);
   // State to control the current step of the calculator
-  const [step, setStep] = useState(1); // 1: Input, 2: Design, 3: Savings
+  const [step, setStep] = useState(0); // 0: Country, 1: Input, 2: Design, 3: Savings
 
-  // Callback to update form data from child components
   const handleFormChange = (newData) => {
     setFormData(prev => ({ ...prev, ...newData }));
   };
 
-  // Navigation functions
   const nextStep = () => setStep(prev => prev + 1);
   const prevStep = () => setStep(prev => prev - 1);
 
+  const handleCountryNext = () => {
+    setFormData(buildDefaultFormData(country));
+    nextStep();
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 font-sans text-gray-900">
-      <Header />
+      <Header countryLabel={country ? data[country].countryLabel : null} />
       <main className="flex-grow container mx-auto p-4 md:p-8 max-w-4xl">
-        {step === 1 && (
+        {step === 0 && (
+          <CountrySelector
+            country={country}
+            onSelectCountry={setCountry}
+            onNext={handleCountryNext}
+          />
+        )}
+        {step === 1 && formData && (
           <InputSection
             formData={formData}
             onFormChange={handleFormChange}
             onNext={nextStep}
+            onPrev={prevStep}
           />
         )}
-        {step === 2 && (
+        {step === 2 && formData && (
           <SolarDesignSection
             formData={formData}
             onPrev={prevStep}
             onNext={nextStep}
           />
         )}
-        {step === 3 && (
+        {step === 3 && formData && (
           <SavingsComparisonSection
             formData={formData}
             onPrev={prevStep}
           />
         )}
-        {/* Potentially add a SummarySection for final recap */}
       </main>
       <Footer />
     </div>

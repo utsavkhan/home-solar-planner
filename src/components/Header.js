@@ -1,4 +1,4 @@
-const Header = () => {
+const Header = ({ countryLabel }) => {
   return (
     <header className="bg-gradient-to-r from-green-600 to-teal-700 text-white p-4 shadow-lg rounded-b-lg">
       <div className="container mx-auto flex items-center justify-between">
@@ -9,7 +9,7 @@ const Header = () => {
           </span>
         </h1>
         <span className="text-sm md:text-base opacity-90">
-          On-Grid Solar Plants for Indian Homes
+          {countryLabel ? `On-Grid Solar Plants for ${countryLabel} Homes` : "On-Grid Solar Plants for Homes"}
         </span>
       </div>
     </header>
