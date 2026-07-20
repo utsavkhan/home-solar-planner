@@ -109,13 +109,19 @@ const Sweden = {
   },
 
   // Cost per kWp (SEK) before deduction. Smaller systems cost more per kWp.
+  // Reconfirmed against 3 independent sources (Tibber, Vattenfall's live pricing
+  // calculator, 1Komma5) which converged on a materially higher range than earlier
+  // estimated - e.g. Vattenfall's own 7.2kWp system quote implies ~16,760 kr/kWp, and
+  // both Tibber and 1Komma5 imply ~15,700-16,500 kr/kWp even at 10-15kWp. Skewed toward
+  // the higher end of each source's range so the tool doesn't under-quote installation
+  // cost to the user.
   costPerKWpTiers: {
-    "1kW": 18000,
-    "2kW": 16500,
-    "3kW": 15000,
-    "4kW": 14000,
-    "5kW": 13000,
-    "Above 5kW (average)": 12000,
+    "1kW": 20000,
+    "2kW": 19000,
+    "3kW": 18000,
+    "4kW": 17500,
+    "5kW": 17000,
+    "Above 5kW (average)": 16500,
   },
 
   // Grön Teknik green technology tax deduction (reduced from 20% to 15% on 1 Jul 2025)
@@ -132,6 +138,12 @@ const Sweden = {
   defaultSelfConsumptionRate: 0.30,
   // Nordpool spot price averages ~0.325 kr/kWh nationally vs ~2.3 kr/kWh retail - roughly
   // a 0.14 ratio; rounded slightly up to account for the small nätnytta addition.
+  // NOTE: one source (1Komma5) instead illustrates export at 1.15 kr/kWh vs 2.00 kr/kWh
+  // self-consumption (~58%), well above this. Kept at the lower, spot-price-grounded
+  // figure deliberately - unlike installation cost, a higher export ratio would inflate
+  // the savings/payback shown to the user, so the conservative (lower) choice is the
+  // one that avoids over-promising here. Revisit if a retailer's published buy-back
+  // tariff is checked directly.
   exportPriceRatioOfRetail: 0.15,
 
   comparisonInvestmentLabel: "Savings Account (Sparkonto)",
