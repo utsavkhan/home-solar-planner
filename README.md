@@ -9,6 +9,8 @@ A React single-page wizard that helps homeowners in **India** and **Sweden** siz
 3. **Solar design** — recommended system size (kWp), panel count, total installation cost, and the applicable government incentive.
 4. **Savings comparison** — a year-by-year projection (chart + table) of cumulative solar cash flow vs. the same money left in a comparison investment, plus estimated payback period.
 
+The layout is responsive (mobile/tablet/desktop), and clicking the logo in the header returns you to the start at any point (with a confirmation, since it clears your entries).
+
 ## Quick start
 
 Requirements: [Node.js](https://nodejs.org/) 18+ and npm (bundled with Node).

@@ -191,11 +191,11 @@ const InputSection = ({ formData, onFormChange, onNext, onPrev }) => {
             max="30"
             step="1"
           />
-          <div className="mt-6 flex justify-between md:col-span-2">
+          <div className="mt-6 flex flex-col-reverse sm:flex-row gap-3 sm:justify-between md:col-span-2">
             <button
               type="button"
               onClick={onPrev}
-              className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-full transition-all duration-300 shadow-md"
+              className="w-full sm:w-auto bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-full transition-all duration-300 shadow-md"
             >
               ← Back
             </button>
@@ -203,7 +203,7 @@ const InputSection = ({ formData, onFormChange, onNext, onPrev }) => {
               type="button"
               onClick={onNext}
               disabled={!isFormValid()}
-              className={`py-3 px-8 rounded-full text-white font-semibold text-lg transition-all duration-300 ${isFormValid() ? 'bg-green-600 hover:bg-green-700 shadow-md hover:shadow-lg' : 'bg-gray-400 cursor-not-allowed'
+              className={`w-full sm:w-auto py-3 px-8 rounded-full text-white font-semibold text-lg transition-all duration-300 ${isFormValid() ? 'bg-green-600 hover:bg-green-700 shadow-md hover:shadow-lg' : 'bg-gray-400 cursor-not-allowed'
                 }`}
             >
               Calculate My Solar Potential →

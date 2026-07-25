@@ -9,7 +9,7 @@ const FormInput = ({ label, type = 'text', name, value, onChange, unit, placehol
           type={type}
           id={name}
           name={name}
-          className="flex-grow py-2 px-3 text-gray-800 leading-tight focus:outline-none bg-transparent rounded-l-lg"
+          className="flex-grow min-w-0 py-2 px-3 text-gray-800 leading-tight focus:outline-none bg-transparent rounded-l-lg"
           value={value}
           onChange={onChange}
           placeholder={placeholder}
@@ -18,7 +18,7 @@ const FormInput = ({ label, type = 'text', name, value, onChange, unit, placehol
           step={step}
           disabled={disabled}
         />
-        {unit && <span className="text-gray-500 text-sm pr-3">{unit}</span>}
+        {unit && <span className="text-gray-500 text-sm pr-3 flex-shrink-0 whitespace-nowrap">{unit}</span>}
       </div>
       {helperText && <p className="text-gray-600 text-xs italic mt-1">{helperText}</p>}
     </div>

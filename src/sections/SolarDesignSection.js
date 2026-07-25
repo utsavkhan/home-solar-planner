@@ -78,17 +78,17 @@ const SolarDesignSection = ({ formData, onPrev, onNext }) => {
 
         <div className="bg-blue-50 p-6 rounded-lg border border-blue-200 shadow-sm">
           <h3 className="text-xl font-bold text-blue-800 mb-4">Estimated Costing</h3>
-          <div className="space-y-2 text-gray-700">
-            <p className="flex justify-between items-center text-lg">
+          <div className="space-y-3 text-gray-700">
+            <p className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-lg gap-0.5">
               <span>Total Estimated Installation Cost*:</span>
               <span className="font-bold text-blue-700">{formatCurrency(totalCost, country)}</span>
             </p>
-            <p className="flex justify-between items-center text-lg">
+            <p className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-lg gap-0.5">
               <span>{subsidyOrDeductionLabel}**:</span>
               <span className="font-bold text-red-600">- {formatCurrency(subsidyOrDeductionAmount, country)}</span>
             </p>
             <hr className="border-blue-300 my-3" />
-            <p className="flex justify-between items-center text-xl font-extrabold">
+            <p className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-xl font-extrabold gap-0.5">
               <span>Your Net Investment:</span>
               <span className="text-green-800">{formatCurrency(netCost, country)}</span>
             </p>
@@ -136,18 +136,18 @@ const SolarDesignSection = ({ formData, onPrev, onNext }) => {
         </div>
       </div>
 
-      <div className="mt-8 flex justify-between">
+      <div className="mt-8 flex flex-col-reverse sm:flex-row gap-3 sm:justify-between">
         <button
           type="button"
           onClick={onPrev}
-          className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-full transition-all duration-300 shadow-md"
+          className="w-full sm:w-auto bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-full transition-all duration-300 shadow-md"
         >
           ← Back
         </button>
         <button
           type="button"
           onClick={onNext}
-          className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-full transition-all duration-300 shadow-md hover:shadow-lg"
+          className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-full transition-all duration-300 shadow-md hover:shadow-lg"
         >
           See Detailed Savings →
         </button>

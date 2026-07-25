@@ -42,9 +42,19 @@ const App = () => {
     nextStep();
   };
 
+  const goHome = () => {
+    if (step > 0) {
+      const confirmed = window.confirm('Going back to the homepage will lose all your entries. Continue?');
+      if (!confirmed) return;
+    }
+    setStep(0);
+    setCountry('');
+    setFormData(null);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 font-sans text-gray-900">
-      <Header countryLabel={country ? data[country].countryLabel : null} />
+      <Header countryLabel={country ? data[country].countryLabel : null} onLogoClick={goHome} />
       <main className="flex-grow container mx-auto p-4 md:p-8 max-w-4xl">
         {step === 0 && (
           <CountrySelector

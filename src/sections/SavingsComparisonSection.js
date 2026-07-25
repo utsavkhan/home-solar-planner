@@ -81,12 +81,12 @@ const SavingsComparisonSection = ({ formData, onPrev }) => {
                   [`${comparisonLabel} Balance`]: traditionalSavingsProjection[index].balance
                 }))}
                 margin={{
-                  top: 5, right: 30, left: 20, bottom: 5,
+                  top: 5, right: 10, left: 0, bottom: 5,
                 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
                 <XAxis dataKey="year" label={{ value: 'Year', position: 'insideBottom', offset: 0 }} />
-                <YAxis tickFormatter={(value) => formatChartTick(value, country)} label={{ value: `Amount (${currentCountryData.currency})`, angle: -90, position: 'insideLeft' }} />
+                <YAxis tickFormatter={(value) => formatChartTick(value, country)} width={60} />
                 <Tooltip formatter={(value) => formatCurrency(value, country)} />
                 <Legend />
                 <Line type="monotone" dataKey="Solar Cumulative Savings" stroke="#10B981" activeDot={{ r: 8 }} strokeWidth={2} />
@@ -125,11 +125,11 @@ const SavingsComparisonSection = ({ formData, onPrev }) => {
           </p>
         </div>
 
-        <div className="mt-8 flex justify-between">
+        <div className="mt-8 flex">
           <button
             type="button"
             onClick={onPrev}
-            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-full transition-all duration-300 shadow-md"
+            className="w-full sm:w-auto bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-full transition-all duration-300 shadow-md"
           >
             ← Back to Design
           </button>
